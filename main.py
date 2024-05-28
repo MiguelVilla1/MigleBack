@@ -14,6 +14,8 @@ from api.covid import covid_api # Blueprint import api definition
 from api.joke import joke_api # Blueprint import api definition
 from api.user import user_api # Blueprint import api definition
 from api.player import player_api
+from api.player import titanics_api
+from api.player import titanic_api
 # database migrations
 from model.users import initUsers
 from model.players import initPlayers
