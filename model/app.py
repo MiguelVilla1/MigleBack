@@ -1,7 +1,9 @@
 from flask import Flask, jsonify, request
+from flask_cors import CORS
 import sqlite3
 
 app = Flask(__name__)
+CORS(app)  # Enable CORS for all routes
 
 def connect_db():
     conn = sqlite3.connect('ford_models.db')
@@ -66,6 +68,17 @@ def get_cars():
             'horsepower': row[6]
         })
     return jsonify(cars)
+
+@app.route('/debug_db', methods=['GET'])
+def debug_db():
+    conn = connect_db()
+    cursor = conn.cursor()
+    cursor.execute('SELECT * FROM ford_models')
+    rows = cursor.fetchall()
+    conn.close()
+    for row in rows:
+        print(row)
+    return "Check the console for database contents"
 
 if __name__ == '__main__':
     app.run(debug=True)
