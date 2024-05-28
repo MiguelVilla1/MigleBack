@@ -12,7 +12,7 @@ def create_table():
     conn = connect_db()
     cursor = conn.cursor()
     cursor.execute('''
-        CREATE TABLE IF NOT EXISTS car_models (
+        CREATE TABLE IF NOT EXISTS ford_models (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             model_name TEXT NOT NULL,
             year INTEGER NOT NULL,
@@ -40,7 +40,7 @@ def populate_data():
     conn = connect_db()
     cursor = conn.cursor()
     cursor.executemany('''
-        INSERT INTO car_models (model_name, year, engine, trim, price, horsepower)
+        INSERT INTO ford_models (model_name, year, engine, trim, price, horsepower)
         VALUES (?, ?, ?, ?, ?, ?)
     ''', car_data)
     conn.commit()
@@ -51,7 +51,7 @@ def populate_data():
 def get_cars():
     conn = connect_db()
     cursor = conn.cursor()
-    cursor.execute('SELECT * FROM car_models')
+    cursor.execute('SELECT * FROM ford_models')
     rows = cursor.fetchall()
     conn.close()
     cars = []
