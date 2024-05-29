@@ -80,5 +80,33 @@ def debug_db():
         print(row)
     return "Check the console for database contents"
 
+@app.route('/sort_cars', methods=['GET'])
+def sort_cars():
+    sort_by = request.args.get('sort_by', 'price')  # Default to sorting by price
+    order = request.args.get('order', 'asc')  # Default to ascending order
+
+    conn = connect_db()
+    cursor = conn.cursor()
+    if order == 'asc':
+        cursor.execute(f'SELECT * FROM ford_models ORDER BY {sort_by} ASC')
+    else:
+        cursor.execute(f'SELECT * FROM ford_models ORDER BY {sort_by} DESC')
+    rows = cursor.fetchall()
+    conn.close()
+
+    cars = []
+    for row in rows:
+        cars.append({
+            'id': row[0],
+            'model_name': row[1],
+            'year': row[2],
+            'engine': row[3],
+            'trim': row[4],
+            'price': row[5],
+            'horsepower': row[6]
+        })
+
+    return jsonify(cars)
+
 if __name__ == '__main__':
     app.run(debug=True)
