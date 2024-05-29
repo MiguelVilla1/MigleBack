@@ -5,25 +5,27 @@ import sqlite3
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
 
+DATABASE = 'ford_models.db'
+
 def connect_db():
-    conn = sqlite3.connect('ford_models.db', timeout=10)  # Added timeout parameter
+    conn = sqlite3.connect(DATABASE, timeout=10)  # Increased timeout
     return conn
 
 @app.route('/create_table', methods=['GET'])
 def create_table():
-    conn = connect_db()
-    cursor = conn.cursor()
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS ford_models (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            model_name TEXT NOT NULL,
-            year INTEGER NOT NULL,
-            price REAL NOT NULL,
-            horsepower INTEGER NOT NULL
-        )
-    ''')
-    conn.commit()
-    conn.close()
+    with connect_db() as conn:
+        cursor = conn.cursor()
+        cursor.execute('DROP TABLE IF EXISTS ford_models')  # Drop the existing table if it exists
+        cursor.execute('''
+            CREATE TABLE ford_models (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                model_name TEXT NOT NULL,
+                year INTEGER NOT NULL,
+                price REAL NOT NULL,
+                horsepower INTEGER NOT NULL
+            )
+        ''')
+        conn.commit()
     return "Table created successfully"
 
 @app.route('/populate_data', methods=['GET'])
@@ -37,43 +39,40 @@ def populate_data():
         ('Escape', 2024, 29345.0, 180)
     ]
 
-    conn = connect_db()
-    cursor = conn.cursor()
-    cursor.executemany('''
-        INSERT INTO ford_models (model_name, year, price, horsepower)
-        VALUES (?, ?, ?, ?)
-    ''', car_data)
-    conn.commit()
-    conn.close()
+    with connect_db() as conn:
+        cursor = conn.cursor()
+        cursor.executemany('''
+            INSERT INTO ford_models (model_name, year, price, horsepower)
+            VALUES (?, ?, ?, ?)
+        ''', car_data)
+        conn.commit()
     return "Data populated successfully"
 
 @app.route('/cars', methods=['GET'])
 def get_cars():
-    conn = connect_db()
-    cursor = conn.cursor()
-    cursor.execute('SELECT * FROM ford_models')
-    rows = cursor.fetchall()
-    conn.close()
     cars = []
-    for row in rows:
-        cars.append({
-            'id': row[0],
-            'model_name': row[1],
-            'year': row[2],
-            'price': row[3],
-            'horsepower': row[4]
-        })
+    with connect_db() as conn:
+        cursor = conn.cursor()
+        cursor.execute('SELECT * FROM ford_models')
+        rows = cursor.fetchall()
+        for row in rows:
+            cars.append({
+                'id': row[0],
+                'model_name': row[1],
+                'year': row[2],
+                'price': row[3],
+                'horsepower': row[4]
+            })
     return jsonify(cars)
 
 @app.route('/debug_db', methods=['GET'])
 def debug_db():
-    conn = connect_db()
-    cursor = conn.cursor()
-    cursor.execute('SELECT * FROM ford_models')
-    rows = cursor.fetchall()
-    conn.close()
-    for row in rows:
-        print(row)
+    with connect_db() as conn:
+        cursor = conn.cursor()
+        cursor.execute('SELECT * FROM ford_models')
+        rows = cursor.fetchall()
+        for row in rows:
+            print(row)
     return "Check the console for database contents"
 
 @app.route('/sort_cars', methods=['GET'])
@@ -81,24 +80,22 @@ def sort_cars():
     sort_by = request.args.get('sort_by', 'price')  # Default to sorting by price
     order = request.args.get('order', 'asc')  # Default to ascending order
 
-    conn = connect_db()
-    cursor = conn.cursor()
-    if order == 'asc':
-        cursor.execute(f'SELECT * FROM ford_models ORDER BY {sort_by} ASC')
-    else:
-        cursor.execute(f'SELECT * FROM ford_models ORDER BY {sort_by} DESC')
-    rows = cursor.fetchall()
-    conn.close()
-
     cars = []
-    for row in rows:
-        cars.append({
-            'id': row[0],
-            'model_name': row[1],
-            'year': row[2],
-            'price': row[3],
-            'horsepower': row[4]
-        })
+    with connect_db() as conn:
+        cursor = conn.cursor()
+        if order == 'asc':
+            cursor.execute(f'SELECT * FROM ford_models ORDER BY {sort_by} ASC')
+        else:
+            cursor.execute(f'SELECT * FROM ford_models ORDER BY {sort_by} DESC')
+        rows = cursor.fetchall()
+        for row in rows:
+            cars.append({
+                'id': row[0],
+                'model_name': row[1],
+                'year': row[2],
+                'price': row[3],
+                'horsepower': row[4]
+            })
 
     return jsonify(cars)
 
