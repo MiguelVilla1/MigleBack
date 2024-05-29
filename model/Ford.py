@@ -6,7 +6,7 @@ app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
 
 def connect_db():
-    conn = sqlite3.connect('ford_models.db')
+    conn = sqlite3.connect('ford_models.db', timeout=10)  # Added timeout parameter
     return conn
 
 @app.route('/create_table', methods=['GET'])
