@@ -31,12 +31,12 @@ def create_table():
 @app.route('/populate_data', methods=['GET'])
 def populate_data():
     car_data = [
-        ('Mustang', 2023, 55000.0, 450),
-        ('F-150', 2022, 45000.0, 400),
-        ('Escape', 2021, 35000.0, 250),
-        ('Explorer', 2023, 50000.0, 365),
+        ('Mustang', 2023, 57945.0, 450),
+        ('F-150', 2022, 33315.0, 290),
+        ('Escape', 2021, 26800.0, 250),
+        ('Explorer', 2023, 36760.0, 300),
         ('Bronco', 2023, 35000.0, 300),
-        ('Escape', 2024, 29345.0, 180)
+        ('Escape', 2024, 29495.0, 250)
     ]
 
     with connect_db() as conn:
